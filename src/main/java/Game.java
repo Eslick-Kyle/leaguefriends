@@ -52,8 +52,14 @@ public class Game extends HttpServlet {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
             Gson gson = gsonBuilder.create();
+            
+            // Pass in reply string
             Summoner summoner = gson.fromJson(reply, Summoner.class);
+            
+            // returns games of summoner from API
             reply = api.getGames(Integer.toString(summoner.getId()));
+            
+            // Add games to summoner class
             summoner.addGames(reply);
             out.println("<h1>" + summoner.getName() + "</h1>");
             out.println("<table><tr><th>Kills</th><th>Deaths</th><th>Assists</th></tr>");
