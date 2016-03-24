@@ -46,7 +46,7 @@ public class Game extends HttpServlet {
             
             
             // this could be an input that is being pulled from the user
-            String reply = api.getSummoner("Tecel");
+            String reply = api.getSummoner("TCD Nate");
             
             
             GsonBuilder gsonBuilder = new GsonBuilder();

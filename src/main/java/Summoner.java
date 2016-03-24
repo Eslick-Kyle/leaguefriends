@@ -1,7 +1,6 @@
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,8 @@ public class Summoner {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LeagueGame.class, new LeagueGameDeserializer());
         Gson gson = gsonBuilder.create();
-        JSONGames = JSONGames.replace("{\"summonerId\":21009618,\"games\":", "");
+        String replace = String.format("{\"summonerId\":%s,\"games\":", this.id);
+        JSONGames = JSONGames.replace(replace, "");
         JSONGames = JSONGames.replace("}}]}", "}}]");
         LeagueGame leagueGames[] = gson.fromJson(JSONGames, LeagueGame[].class);
         for (LeagueGame e : leagueGames) {
