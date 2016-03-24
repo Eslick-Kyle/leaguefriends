@@ -42,18 +42,19 @@ public class Game extends HttpServlet {
             out.println("<title>Servlet Game</title>");            
             out.println("</head>");
             out.println("<body>");
+            
+            // create League API
             LeagueAPI api = new LeagueAPI();
             
-            
-            // this could be an input that is being pulled from the user
+            // this could be an input that is being pulled from the user, brings back info for a new summoner
             String reply = api.getSummoner("TCD Nate");
             
-            
+            // Build GSON
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
             Gson gson = gsonBuilder.create();
             
-            // Pass in reply string
+            // Pass in reply string which contains summoner info retreived with api.getSummoner
             Summoner summoner = gson.fromJson(reply, Summoner.class);
             
             // returns games of summoner from API
@@ -61,6 +62,8 @@ public class Game extends HttpServlet {
             
             // Add games to summoner class
             summoner.addGames(reply);
+            
+            // Print out Summoner Info
             out.println("<h1>" + summoner.getName() + "</h1>");
             out.println("<table><tr><th>Kills</th><th>Deaths</th><th>Assists</th></tr>");
             for (LeagueGame e : summoner.getGames()) {

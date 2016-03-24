@@ -1,0 +1,107 @@
+-- phpMyAdmin SQL Dump
+-- version 4.4.10
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost:8889
+-- Generation Time: Mar 24, 2016 at 06:12 PM
+-- Server version: 5.5.42
+-- PHP Version: 7.0.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `lolfriends`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `friend`
+--
+
+CREATE TABLE `friend` (
+`id` int(11) NOT NULL,
+`user_id` int(11) DEFAULT NULL,
+`summoner_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `summoner`
+--
+
+CREATE TABLE `summoner` (
+`id` int(11) NOT NULL,
+`summoner_name` varchar(50) NOT NULL,
+`riot_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
+
+CREATE TABLE `user` (
+`id` int(11) NOT NULL,
+`user_name` varchar(50) NOT NULL,
+`password` varchar(256) NOT NULL,
+`riot_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `friend`
+--
+ALTER TABLE `friend`
+ADD PRIMARY KEY (`id`),
+ADD KEY `user_id` (`user_id`),
+ADD KEY `summoner_id` (`summoner_id`);
+
+--
+-- Indexes for table `summoner`
+--
+ALTER TABLE `summoner`
+ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+ADD PRIMARY KEY (`id`),
+ADD UNIQUE KEY `user_name` (`user_name`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `friend`
+--
+ALTER TABLE `friend`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `summoner`
+--
+ALTER TABLE `summoner`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `friend`
+--
+ALTER TABLE `friend`
+ADD CONSTRAINT `friend_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+ADD CONSTRAINT `friend_ibfk_2` FOREIGN KEY (`summoner_id`) REFERENCES `summoner` (`id`);
