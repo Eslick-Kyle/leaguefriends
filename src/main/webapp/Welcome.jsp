@@ -4,6 +4,7 @@
     Author     : Shane
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -47,6 +48,19 @@
         </div>
         
         <h1>Welcome ${Username}</h1>
+        
+        <form method="POST" action="addSummoner">
+            <input type="text" name="summonerName">
+        </form>
+        
+        <c:forEach items="${summoners}" var="summoner">
+            <div>
+                <span>Name: <c:out value="${summoner.user_name}"/></span>
+            </div>
+            
+        </c:forEach>
+        
+        
         <footer>
             <p>League of Friends isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
         </footer>

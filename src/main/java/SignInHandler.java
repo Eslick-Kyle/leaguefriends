@@ -44,14 +44,12 @@ public class SignInHandler extends HttpServlet
         
         // Check for username in DB
         List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
-        // hash password
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         // check to see if user is populated, meaning user was found in database
         if(!checkUser.isEmpty())
         {
             // check to see if userpassword and entered password match
-            if(BCrypt.checkpw(password, hashedPassword))
+            if(BCrypt.checkpw(password, checkUser.get(0).getPassword()))
             {
                 request.getSession().setAttribute("username", username);
                 response.sendRedirect("Welcome.jsp");
