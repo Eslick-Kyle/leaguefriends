@@ -20,6 +20,7 @@
         {
             background-size: 100%;
             background: url("welcome.png");
+            color: white;
         }
         #background
         {
@@ -35,7 +36,7 @@
             width: 100%;
             height: 100%;
         }
-        h1{color: white;}
+
     </style>
 
     <head>
@@ -47,18 +48,18 @@
             <img src="welcome.png" class="stretch" alt="welcome" />
         </div>
         
-        <h1>Welcome ${Username}</h1>
+        <h1>Welcome ${user.user_name}</h1>
         
+        <h2>Follow a Summoner</h2>
         <form method="POST" action="addSummoner">
-            <input type="text" name="summonerName">
+            <span>Summoner Name: </span> <input type="text" name="summonerName">
+            <input type="submit" name="submit" value="Submit">
         </form>
         
-        <c:forEach items="${summoners}" var="summoner">
-            <div>
-                <span>Name: <c:out value="${summoner.user_name}"/></span>
-            </div>
-            
-        </c:forEach>
+        
+        ${summoner.id}
+        ${summoner.name}
+        ${summoner.summonerLevel}
         
         
         <footer>

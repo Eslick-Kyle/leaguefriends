@@ -4,8 +4,12 @@
  * and open the template in the editor.
  */
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import javax.persistence.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -30,19 +34,61 @@ public class addSummoner extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet addSummoner</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet addSummoner at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        
+//            // Gather Inforamtion from Welcome Page
+        String summonerName = request.getParameter("summonerName");
+       
+        // Create Factory
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
+        EntityManager em = emf.createEntityManager();
+        
+        // create League API
+        LeagueAPI api = new LeagueAPI();
+            
+        // this could be an input that is being pulled from the user, brings back info for a new summoner
+        String reply;
+        Summoner newSummoner = null;
+        try
+        {
+         reply = api.getSummoner(summonerName);
+         // Build GSON
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
+        Gson gson = gsonBuilder.create();
+            
+        // Pass in reply string which contains summoner info retreived with api.getSummoner
+        newSummoner = gson.fromJson(reply, Summoner.class);
+        }catch(Exception ex)
+        {
+            System.out.println("Summoner Does Not  --------------------------------------------------------------------------");
+            request.setAttribute("Error", "Summoner Does Not Exist: " + summonerName);
+            request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
+        
         }
+        
+        
+        // Start transction
+        em.getTransaction().begin();
+       
+        
+        // Check for username in DB
+        List<Summoner> checkSummoner = em.createQuery("SELECT s FROM Summoner s WHERE s.summoner_name = :summonerName").setParameter("summonerName", summonerName).getResultList();
+        
+        // 
+        if(checkSummoner.isEmpty() && newSummoner != null)
+        {
+           em.persist(newSummoner);
+           em.getTransaction().commit();
+        }
+        else
+        {
+            System.out.println("-------============================================ Already Following");
+            request.setAttribute("Error", "Already following summoner" + summonerName);
+            request.getRequestDispatcher("Welcome.jsp").forward(request, response);       
+        }
+
+       
+        em.close();
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

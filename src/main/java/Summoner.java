@@ -1,48 +1,58 @@
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-
+import javax.persistence.*;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author KyleE
  */
-public class Summoner {
+@Entity
+public class Summoner implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
+
+    private int riot_id;
+
+    private String summoner_name;
+    
+    @Transient
     private String profileIconId;
+    @Transient
     private String summonerLevel;
+    @Transient
     private List<LeagueGame> games;
 
     public Summoner() {
-        id = 0;
-        name = "";
+        riot_id = 0;
+        summoner_name = "";
         profileIconId = "";
         summonerLevel = "";
         games = new ArrayList<>();
     }
-    
+
     public void addGames(String JSONGames) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LeagueGame.class, new LeagueGameDeserializer());
         Gson gson = gsonBuilder.create();
-        String replace = String.format("{\"summonerId\":%s,\"games\":", this.id);
+        String replace = String.format("{\"summonerId\":%s,\"games\":", this.riot_id);
         JSONGames = JSONGames.replace(replace, "");
         JSONGames = JSONGames.replace("}}]}", "}}]");
         LeagueGame leagueGames[] = gson.fromJson(JSONGames, LeagueGame[].class);
         for (LeagueGame e : leagueGames) {
             this.addGame(e);
         }
-        
+
     }
 
     public List<LeagueGame> getGames() {
@@ -52,25 +62,25 @@ public class Summoner {
     public void setGames(List<LeagueGame> games) {
         this.games = games;
     }
-    
+
     public void addGame(LeagueGame toadd) {
         games.add(toadd);
     }
-    
+
     public int getId() {
-        return id;
+        return riot_id;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.riot_id = id;
     }
 
     public String getName() {
-        return name;
+        return summoner_name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.summoner_name = name;
     }
 
     public String getProfileIconId() {
@@ -88,5 +98,13 @@ public class Summoner {
     public void setSummonerLevel(String summonerLevel) {
         this.summonerLevel = summonerLevel;
     }
-    
+
+    public int getDbId() {
+        return id;
+    }
+
+    public void setDbId(int id) {
+        this.id = id;
+    }
+
 }

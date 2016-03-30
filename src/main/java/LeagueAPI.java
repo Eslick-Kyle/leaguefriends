@@ -23,7 +23,7 @@ public class LeagueAPI {
     private final String summonerURL = "https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/%s?api_key=72a4528f-1d22-4266-912e-59f7c3497efa";
     private final String gamesURL = "https://na.api.pvp.net/api/lol/na/v1.3/game/by-summoner/%s/recent?api_key=72a4528f-1d22-4266-912e-59f7c3497efa";
 
-    public String getSummoner(String summonerName) {
+    public String getSummoner(String summonerName)  {
         StringBuilder response = new StringBuilder();
         try {
             String url = String.format(summonerURL, summonerName.replace(" ", ""));
