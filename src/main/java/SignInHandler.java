@@ -1,9 +1,14 @@
 import java.io.IOException;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mindrot.jbcrypt.BCrypt;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,9 +26,44 @@ public class SignInHandler extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
+        
+        // Create Factory
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
+        EntityManager em = emf.createEntityManager();
+                
         boolean found = false;
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        
+        
+        
+        if(username.equals(' ') || username.isEmpty() || password.equals(' ') || password.isEmpty())
+        {
+            response.sendRedirect("BadLogin.jsp"); 
+        }
+        
+        
+        // Check for username in DB
+        List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        if(!checkUser.isEmpty())
+        {
+            if(BCrypt.checkpw(password, hashedPassword))
+            {
+                request.getSession().setAttribute("username", username);
+                response.sendRedirect("Welcome.jsp");
+            }
+            else
+            {
+                response.sendRedirect("BadLogin.jsp"); 
+            }
+        }
+        else
+        {
+         response.sendRedirect("BadLogin.jsp"); 
+        }
+            
         
         /* Need to get data from the database to compare
         String dbPass = select password from db where username = ${username};
@@ -32,20 +72,22 @@ public class SignInHandler extends HttpServlet
             found = true;
         }
         */
-        if (username.equals("test") && password.equals("test"))
-        {
-            found = true;
-        }
         
-        if (found) 
-        {
-            request.getSession().setAttribute("username", username);
-            response.sendRedirect("Welcome.jsp");
-        } 
-        else 
-        {
-            response.sendRedirect("BadLogin.jsp");
-        }
+        
+//        if (username.equals("test") && password.equals("test"))
+//        {
+//            found = true;
+//        }
+//        
+//        if (found) 
+//        {
+//            request.getSession().setAttribute("username", username);
+//            response.sendRedirect("Welcome.jsp");
+//        } 
+//        else 
+//        {
+//            response.sendRedirect("BadLogin.jsp");
+//        }
     }
     
      // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

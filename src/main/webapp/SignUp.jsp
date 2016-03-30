@@ -13,6 +13,7 @@
     </head>
     <body>
         <h1>Sign Up</h1>
+        <span>${Error}</span>
         <form method="POST" action="SignUpHandler">
             Username: <input type="text" name="username"><br>
             Password: <input type="password" name="password"><br>

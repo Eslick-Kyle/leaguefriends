@@ -6,14 +6,17 @@
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mysql.jdbc.PreparedStatement;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.persistence.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -33,40 +36,59 @@ public class SignUpHandler extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         // Gather Inforamtion from SignUp Page
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String summonerName = request.getParameter("summonerName");
-        
+       
         // Create Factory
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
         EntityManager em = emf.createEntityManager();
         
-                    // create League API
-            LeagueAPI api = new LeagueAPI();
+        // create League API
+        LeagueAPI api = new LeagueAPI();
             
-            // this could be an input that is being pulled from the user, brings back info for a new summoner
-            String reply = api.getSummoner(summonerName);
+        // this could be an input that is being pulled from the user, brings back info for a new summoner
+        String reply = api.getSummoner(summonerName);
             
-                        // Build GSON
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
-            Gson gson = gsonBuilder.create();
+        // Build GSON
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
+        Gson gson = gsonBuilder.create();
             
-            // Pass in reply string which contains summoner info retreived with api.getSummoner
-            Summoner summoner = gson.fromJson(reply, Summoner.class);
+        // Pass in reply string which contains summoner info retreived with api.getSummoner
+        Summoner summoner = gson.fromJson(reply, Summoner.class);
         
-            // Start transction
+        // Start transction
         em.getTransaction().begin();
-        
         
         // Create New User
         User newUser = new User();
-        // Set Values for new entry into DB
-        newUser.setUser_name(username);
-        newUser.setPassword(password);
-        newUser.setRiot_id(Integer.toString(summoner.getId()));
         
+        // Check for username in DB
+        List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
+        
+        // Set Values for new entry into DB
+        if(checkUser.isEmpty())
+        {
+            newUser.setUser_name(username);
+        }
+        else
+        {
+            request.setAttribute("Error", "Username or Password Invalid or in Use");
+            request.getRequestDispatcher("SignUp.jsp").forward(request, response);       
+        }
+        
+        
+        // Hash Password
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        
+        // Store Hashed Password
+        newUser.setPassword(hashedPassword);
+        
+        // set Riot_id by getting summonerID
+        newUser.setRiot_id(Integer.toString(summoner.getId()));
         
         
         // Commit to DB
