@@ -31,12 +31,11 @@ public class SignInHandler extends HttpServlet
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
         EntityManager em = emf.createEntityManager();
                 
-        boolean found = false;
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         
         
-        
+        // check to see if username or password are empty
         if(username.equals(' ') || username.isEmpty() || password.equals(' ') || password.isEmpty())
         {
             response.sendRedirect("BadLogin.jsp"); 
@@ -45,10 +44,13 @@ public class SignInHandler extends HttpServlet
         
         // Check for username in DB
         List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
+        // hash password
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
+        // check to see if user is populated, meaning user was found in database
         if(!checkUser.isEmpty())
         {
+            // check to see if userpassword and entered password match
             if(BCrypt.checkpw(password, hashedPassword))
             {
                 request.getSession().setAttribute("username", username);
@@ -65,29 +67,6 @@ public class SignInHandler extends HttpServlet
         }
             
         
-        /* Need to get data from the database to compare
-        String dbPass = select password from db where username = ${username};
-        if (password == dbPass)
-        {
-            found = true;
-        }
-        */
-        
-        
-//        if (username.equals("test") && password.equals("test"))
-//        {
-//            found = true;
-//        }
-//        
-//        if (found) 
-//        {
-//            request.getSession().setAttribute("username", username);
-//            response.sendRedirect("Welcome.jsp");
-//        } 
-//        else 
-//        {
-//            response.sendRedirect("BadLogin.jsp");
-//        }
     }
     
      // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
