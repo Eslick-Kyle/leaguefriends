@@ -84,7 +84,9 @@ public class addSummoner extends HttpServlet {
         if(checkSummoner.isEmpty() && newSummoner != null)
         {
            em.persist(newSummoner);
+           em.persist(friend);
            em.getTransaction().commit();
+           request.getRequestDispatcher("PullFriends").forward(request, response);
         }
         else
         {
