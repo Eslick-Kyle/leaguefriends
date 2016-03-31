@@ -44,7 +44,7 @@ public class SignInHandler extends HttpServlet
         
         // Check for username in DB
         List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
-
+        
         User user = (User) em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getSingleResult();
         // check to see if user is populated, meaning user was found in database
         if(!checkUser.isEmpty())
@@ -53,7 +53,7 @@ public class SignInHandler extends HttpServlet
             if(BCrypt.checkpw(password, checkUser.get(0).getPassword()))
             {
                 request.getSession().setAttribute("user", user);
-                response.sendRedirect("Welcome.jsp");
+                response.sendRedirect("PullFriends");
             }
             else
             {

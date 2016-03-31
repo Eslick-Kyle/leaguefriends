@@ -1,5 +1,6 @@
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.*;
 
 /*
@@ -7,16 +8,21 @@ import javax.persistence.*;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Greg
  */
 @Entity
 public class User implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Column(name="id")
     private int id;
+
+    @OneToMany(mappedBy="user", cascade = CascadeType.ALL)
+    private List<Friend> friends;
+
     private String user_name;
     private String password;
     private String riot_id;
@@ -52,6 +58,13 @@ public class User implements Serializable {
     public void setRiot_id(String riot_id) {
         this.riot_id = riot_id;
     }
-    
-    
+
+    public List<Friend> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<Friend> friends) {
+        this.friends = friends;
+    }
+
 }

@@ -22,10 +22,15 @@ public class Summoner implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int riot_id;
+    @OneToMany(mappedBy="summoner")
+    private List<Friend> friends;
 
-    private String summoner_name;
+    @Column(name="riot_id")
+    private int riot_id;
     
+    @Column(name="summoner_name")
+    private String summoner_name;
+
     @Transient
     private String profileIconId;
     @Transient
@@ -105,6 +110,14 @@ public class Summoner implements Serializable {
 
     public void setDbId(int id) {
         this.id = id;
+    }
+
+    public List<Friend> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<Friend> friends) {
+        this.friends = friends;
     }
 
 }

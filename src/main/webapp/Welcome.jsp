@@ -48,7 +48,6 @@
             <img src="welcome.png" class="stretch" alt="welcome" />
         </div>
         
-        <h1>Welcome ${user.user_name}</h1>
         
         <h2>Follow a Summoner</h2>
         <form method="POST" action="addSummoner">
@@ -60,6 +59,18 @@
         ${summoner.id}
         ${summoner.name}
         ${summoner.summonerLevel}
+        
+        <!--  This series of loops will display user's friends and whatever game attributes you chose  -->
+        <c:forEach items="${user}" var="user" >
+            <c:forEach items="${user.getFriends()}" var="friend">
+                <c:out value="${friend.getSummoner().getName()}" />
+                    <c:forEach items="${friend.getSummoner().getGames()}" var="game">
+                <!--  Choose what attributes you want to display per friend here-->
+                           <br>
+                            <c:out value="${game.getChampionsKilled()}"/>
+                     </c:forEach>
+            </c:forEach>
+        </c:forEach>
         
         
         <footer>
