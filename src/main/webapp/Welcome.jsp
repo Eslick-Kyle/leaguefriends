@@ -50,6 +50,9 @@
         
         
         <h2>Follow a Summoner</h2>
+        
+        <c:out value="${Error}" />
+        
         <form method="POST" action="addSummoner">
             <span>Summoner Name: </span> <input type="text" name="summonerName">
             <input type="submit" name="submit" value="Submit">

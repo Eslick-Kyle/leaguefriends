@@ -37,6 +37,8 @@ public class addSummoner extends HttpServlet {
         
         // Gather Inforamtion from Welcome Page
         String summonerName = request.getParameter("summonerName");
+        // Get User object from session
+        User user = (User)request.getSession().getAttribute("user");
        
         // Create Factory
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
@@ -45,49 +47,65 @@ public class addSummoner extends HttpServlet {
         // create League API
         LeagueAPI api = new LeagueAPI();
             
+        // Check to see if summonerName exists within the current users friends
+        Summoner checkSummoner = null;
+        Friend checkFriend = null;
+        
+        try{
+            checkSummoner = (Summoner) em.createQuery("SELECT s FROM Summoner s WHERE s.summoner_name = :summonerName").setParameter("summonerName", summonerName).getSingleResult();
+            System.out.println(summonerName + ' ' + checkSummoner.getName());
+            checkFriend = (Friend) em.createQuery("SELECT f FROM Friend f WHERE f.user.id = :userId AND f.summoner.id = :summonerId").setParameter("userId", user.getId()).setParameter("summonerId", checkSummoner.getDbId()).getSingleResult();
+            System.out.println(user.getId() + ' ' + checkSummoner.getDbId());
+        }catch(Exception e)
+        {
+            System.out.println("Exception thrown in checking for users");
+            e.printStackTrace();
+        }
+        
+        // Now that we know the summoner name exists in our DB. see if it is an actual Summoner Name
         // Declare variables used in try/catch
         String reply = null;
         String Error = null;
         Summoner newSummoner = null;
         
-        // this could be an input that is being pulled from the user, brings back info for a new summoner
-        try
+        if(checkFriend == null)
         {
-         reply = api.getSummoner(summonerName);
-         // Build GSON
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
-        Gson gson = gsonBuilder.create();
-            
-        // Pass in reply string which contains summoner info retreived with api.getSummoner
-        newSummoner = gson.fromJson(reply, Summoner.class);
-        
-        }catch(Exception ex)
-        {
-            Error = "Summoner Does Not Exist: " + summonerName;
-            request.getSession().setAttribute("Error", Error);
-            request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
-        
-        }
+            try
+            {
+                System.out.println("made it to summoner retreval");
+                // get summoner by name
+                reply = api.getSummoner(summonerName);
+                
+                // Build GSON
+               GsonBuilder gsonBuilder = new GsonBuilder();
+               gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
+               Gson gson = gsonBuilder.create();
 
+               // Pass in reply string which contains summoner info retreived with api.getSummoner
+               newSummoner = gson.fromJson(reply, Summoner.class);
+            }catch(Exception ex)
+            {
+                Error = "Summoner Does Not Exist: " + summonerName;
+                request.getSession().setAttribute("Error", Error);
+                request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
+            }
+        }
         
-        // Start transction
         em.getTransaction().begin();
         
         Friend friend = new Friend();
-        User user = (User)request.getSession().getAttribute("user");
         friend.setSummoner(newSummoner);
         friend.setUser(user);
-        
-        // Check to see if summonerName exists within the current users friends
-        Summoner checkSummoner = (Summoner) em.createQuery("SELECT s FROM Summoner s INNER JOIN Friend f ON s.id=f.summoner_id WHERE s.summoner_name = :summonerName AND f.user_id = :userId").setParameter("summonerName", summonerName).setParameter("userId", user.getId()).getSingleResult();
-        
-        
+             
         // 
-        if(checkSummoner == null && newSummoner != null)
+        if(checkFriend == null && newSummoner != null)
         {
+            System.out.println("Made it to Persist");
+            
            em.persist(newSummoner);
            em.persist(friend);
+        // Start transction
+
            em.getTransaction().commit();
            request.getRequestDispatcher("PullFriends").forward(request, response);
         }
@@ -97,8 +115,6 @@ public class addSummoner extends HttpServlet {
             request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("Welcome.jsp").forward(request, response);        
         }
-
-       
         em.close();
     }
 
