@@ -65,6 +65,8 @@ public class SignInHandler extends HttpServlet {
         if (BCrypt.checkpw(password, user.getPassword())) {
             // Put User Object on the session
             request.getSession().setAttribute("user", user);
+            // User is LOGGED IN
+            request.getSession().setAttribute("loggedIn", "TRUE");
             // Forward to Welcome
             request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
         } else {
