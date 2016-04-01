@@ -1,3 +1,4 @@
+
 import java.io.IOException;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -15,60 +16,57 @@ import org.mindrot.jbcrypt.BCrypt;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Shane
-*/
-@WebServlet(name="SignInHandler", urlPatterns={"/SignInHandler"})
-public class SignInHandler extends HttpServlet
-{
+ */
+@WebServlet(name = "SignInHandler", urlPatterns = {"/SignInHandler"})
+public class SignInHandler extends HttpServlet {
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        
+            throws ServletException, IOException {
+
         // Create Factory
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("lolfriendsPersistenceUnit");
         EntityManager em = emf.createEntityManager();
-                
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        
-        
-        // check to see if username or password are empty
-        if(username.equals(' ') || username.isEmpty() || password.equals(' ') || password.isEmpty())
-        {
-            response.sendRedirect("BadLogin.jsp"); 
+
+        String username = null;
+        String password = null;
+        String Error = null;
+        User user = null;
+
+        // Check to see if password or username are empty
+        if (!request.getParameter("username").isEmpty()) {
+            username = request.getParameter("username");
+        } else {
+            request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
-        
-        
+
+        if (!request.getParameter("password").isEmpty()) {
+            password = request.getParameter("password");
+        } else {
+            request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
+        }
+
         // Check for username in DB
-        List<User> checkUser = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getResultList();
-        
-        User user = (User) em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getSingleResult();
-        // check to see if user is populated, meaning user was found in database
-        if(!checkUser.isEmpty())
-        {
-            // check to see if userpassword and entered password match
-            if(BCrypt.checkpw(password, checkUser.get(0).getPassword()))
-            {
-                request.getSession().setAttribute("user", user);
-                response.sendRedirect("PullFriends");
-            }
-            else
-            {
-                response.sendRedirect("BadLogin.jsp"); 
-            }
+        try { //Prepared Statement
+            user = (User) em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getSingleResult();
+        } catch (Exception e) {
+            request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
-        else
-        {
-         response.sendRedirect("BadLogin.jsp"); 
+
+        // check to see if userpassword and entered password match
+        if (BCrypt.checkpw(password, user.getPassword())) {
+            //System.out.println(checkUser.get(0).getFriends().get(0).getSummoner().getName());
+            request.getSession().setAttribute("user", user);
+            //request.getRequestDispatcher("PullFriends").forward(request, response); 
+        } else {
+            request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
-            
-        
+
     }
-    
-     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

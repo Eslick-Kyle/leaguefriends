@@ -62,18 +62,23 @@ public class PullFriends extends HttpServlet {
                 // for each friend, pull his data from the API
                 for(Friend friend : user.getFriends())
                 {
+                    System.out.println("1");
                     // this could be an input that is being pulled from the user, brings back info for a new summoner
                     String reply = api.getSummoner(friend.getSummoner().getName());
 
+                    System.out.println("2");
                     // Pass in reply string which contains summoner info retreived with api.getSummoner
                     Summoner summoner = gson.fromJson(reply, Summoner.class);
 
+                    System.out.println("3");
                     // returns games of summoner from API
                     reply = api.getGames(Integer.toString(summoner.getId()));
 
+                    System.out.println("4");
                     // Add games to summoner class
                     summoner.addGames(reply);
                     
+                    System.out.println("5");
                     // Set the friend summoner to the summoner pulled from API
                     friend.setSummoner(summoner);
 
