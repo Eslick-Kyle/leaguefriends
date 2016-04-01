@@ -68,13 +68,12 @@ public class SignInHandler extends HttpServlet {
             // User is LOGGED IN
             request.getSession().setAttribute("loggedIn", "TRUE");
             // Forward to Welcome
-            request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
+            request.getRequestDispatcher("PullFriends").forward(request, response); 
         } else {
             Error = "Username or Password Invalid";
             request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

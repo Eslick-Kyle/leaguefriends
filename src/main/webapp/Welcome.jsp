@@ -54,22 +54,32 @@
             <span>Summoner Name: </span> <input type="text" name="summonerName">
             <input type="submit" name="submit" value="Submit">
         </form>
-        
-        
-        ${summoner.id}
-        ${summoner.name}
-        ${summoner.summonerLevel}
+
         
         <!--  This series of loops will display user's friends and whatever game attributes you chose  -->
-        <c:forEach items="${user}" var="user" >
-            <c:forEach items="${user.getFriends()}" var="friend">
+        <c:forEach items="${user.getFriends()}" var="friend" >
                 <c:out value="${friend.getSummoner().getName()}" />
-                    <c:forEach items="${friend.getSummoner().getGames()}" var="game">
+                <br>
+                Past 10 Game Summary:
                 <!--  Choose what attributes you want to display per friend here-->
-                           <br>
-                            <c:out value="${game.getChampionsKilled()}"/>
-                     </c:forEach>
-            </c:forEach>
+                
+                <!-- display champion kills-->
+                <c:set var="total" value="${0}" />
+                <c:forEach items="${friend.getSummoner().getGames()}" var="game">
+                    <c:set var="total" value="${total + game.getChampionsKilled()}" />
+                </c:forEach>
+                    <br>
+                    Kills: <c:out value="${total}" />
+                    
+                    <!-- display champion deaths-->
+                <c:set var="total" value="${0}" />
+                <c:forEach items="${friend.getSummoner().getGames()}" var="game">
+                    <c:set var="total" value="${total + game.getNumDeaths()}" />
+                </c:forEach>
+                    <br>
+                    Deaths: <c:out value="${total}" />
+                    <br>
+                    <br>
         </c:forEach>
         
         

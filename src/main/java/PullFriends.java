@@ -35,7 +35,7 @@ public class PullFriends extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // recreate session
+        // pull and assign existing session
         HttpSession session = request.getSession();
         // assign and cast session user object
         User sessionUser = (User)session.getAttribute("user");
@@ -46,48 +46,25 @@ public class PullFriends extends HttpServlet {
         
         // create query to pull ONLY the session user's friends
             Query query = em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", sessionUser.getUser_name());
-            List<User> userFriends = query.getResultList();
+            // cast result to User Type
+            sessionUser = (User) query.getSingleResult();
             
            // create League API
             LeagueAPI api = new LeagueAPI();
-            
-           // Build GSON
-           GsonBuilder gsonBuilder = new GsonBuilder();
-           gsonBuilder.registerTypeAdapter(Summoner.class, new SummonerDeserializer());
-           Gson gson = gsonBuilder.create();
         
-           // Loop through user and his friends.
-            for(User user : userFriends)
-            {    
                 // for each friend, pull his data from the API
-                for(Friend friend : user.getFriends())
+                for(Friend friend : sessionUser.getFriends())
                 {
-                    System.out.println("1");
-                    // this could be an input that is being pulled from the user, brings back info for a new summoner
-                    String reply = api.getSummoner(friend.getSummoner().getName());
-
-                    System.out.println("2");
-                    // Pass in reply string which contains summoner info retreived with api.getSummoner
-                    Summoner summoner = gson.fromJson(reply, Summoner.class);
-
-                    System.out.println("3");
                     // returns games of summoner from API
-                    reply = api.getGames(Integer.toString(summoner.getId()));
+                    String reply = api.getGames(Integer.toString(friend.getSummoner().getId()));
 
-                    System.out.println("4");
                     // Add games to summoner class
-                    summoner.addGames(reply);
-                    
-                    System.out.println("5");
-                    // Set the friend summoner to the summoner pulled from API
-                    friend.setSummoner(summoner);
-
+                    friend.getSummoner().addGames(reply);
                 }
-            
-            }
-            
-            // pass on user object to Welcome.jsp
-            request.setAttribute("user", userFriends);
+//            sessionUser.getFriends().get(0).getSummoner().getGames().get(0).;
+            // put user back on session
+            request.setAttribute("user", sessionUser);
+            // forward to Welcome
             request.getRequestDispatcher("Welcome.jsp").forward(request, response);
       
             em.close();

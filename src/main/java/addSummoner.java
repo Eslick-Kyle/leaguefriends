@@ -35,7 +35,7 @@ public class addSummoner extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-//            // Gather Inforamtion from Welcome Page
+        // Gather Inforamtion from Welcome Page
         String summonerName = request.getParameter("summonerName");
        
         // Create Factory
@@ -45,10 +45,12 @@ public class addSummoner extends HttpServlet {
         // create League API
         LeagueAPI api = new LeagueAPI();
             
-        // this could be an input that is being pulled from the user, brings back info for a new summoner
-        String reply;
+        // Declare variables used in try/catch
+        String reply = null;
+        String Error = null;
         Summoner newSummoner = null;
         
+        // this could be an input that is being pulled from the user, brings back info for a new summoner
         try
         {
          reply = api.getSummoner(summonerName);
@@ -59,14 +61,15 @@ public class addSummoner extends HttpServlet {
             
         // Pass in reply string which contains summoner info retreived with api.getSummoner
         newSummoner = gson.fromJson(reply, Summoner.class);
+        
         }catch(Exception ex)
         {
-            System.out.println("Summoner Does Not  --------------------------------------------------------------------------");
-            request.setAttribute("Error", "Summoner Does Not Exist: " + summonerName);
+            Error = "Summoner Does Not Exist: " + summonerName;
+            request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
         
         }
-        
+
         
         // Start transction
         em.getTransaction().begin();
@@ -76,12 +79,12 @@ public class addSummoner extends HttpServlet {
         friend.setSummoner(newSummoner);
         friend.setUser(user);
         
-        // Check for username in DB
-        List<Summoner> checkSummoner = em.createQuery("SELECT s FROM Summoner s WHERE s.summoner_name = :summonerName").setParameter("summonerName", summonerName).getResultList();
+        // Check to see if summonerName exists within the current users friends
+        Summoner checkSummoner = (Summoner) em.createQuery("SELECT s FROM Summoner s INNER JOIN Friend f ON s.id=f.summoner_id WHERE s.summoner_name = :summonerName AND f.user_id = :userId").setParameter("summonerName", summonerName).setParameter("userId", user.getId()).getSingleResult();
         
         
         // 
-        if(checkSummoner.isEmpty() && newSummoner != null)
+        if(checkSummoner == null && newSummoner != null)
         {
            em.persist(newSummoner);
            em.persist(friend);
@@ -90,9 +93,9 @@ public class addSummoner extends HttpServlet {
         }
         else
         {
-            System.out.println("-------============================================ Already Following");
-            request.setAttribute("Error", "Already following summoner" + summonerName);
-            request.getRequestDispatcher("Welcome.jsp").forward(request, response);       
+            Error = "Already Following Summoner " + summonerName;
+            request.getSession().setAttribute("Error", Error);
+            request.getRequestDispatcher("Welcome.jsp").forward(request, response);        
         }
 
        
