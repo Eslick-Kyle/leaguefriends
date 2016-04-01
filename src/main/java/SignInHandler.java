@@ -39,12 +39,16 @@ public class SignInHandler extends HttpServlet {
         if (!request.getParameter("username").isEmpty()) {
             username = request.getParameter("username");
         } else {
+            Error = "Username or Password Invalid";
+            request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
 
         if (!request.getParameter("password").isEmpty()) {
             password = request.getParameter("password");
         } else {
+            Error = "Username or Password Invalid";
+            request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
 
@@ -52,15 +56,20 @@ public class SignInHandler extends HttpServlet {
         try { //Prepared Statement
             user = (User) em.createQuery("SELECT u FROM User u WHERE u.user_name = :username").setParameter("username", username).getSingleResult();
         } catch (Exception e) {
+            Error = "Username or Password Invalid";
+            request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
 
         // check to see if userpassword and entered password match
         if (BCrypt.checkpw(password, user.getPassword())) {
-            //System.out.println(checkUser.get(0).getFriends().get(0).getSummoner().getName());
+            // Put User Object on the session
             request.getSession().setAttribute("user", user);
-            //request.getRequestDispatcher("PullFriends").forward(request, response); 
+            // Forward to Welcome
+            request.getRequestDispatcher("Welcome.jsp").forward(request, response); 
         } else {
+            Error = "Username or Password Invalid";
+            request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("BadLogin.jsp").forward(request, response);
         }
 
