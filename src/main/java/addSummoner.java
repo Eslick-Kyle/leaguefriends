@@ -53,13 +53,12 @@ public class addSummoner extends HttpServlet {
         
         try{
             checkSummoner = (Summoner) em.createQuery("SELECT s FROM Summoner s WHERE s.summoner_name = :summonerName").setParameter("summonerName", summonerName).getSingleResult();
-            System.out.println(summonerName + ' ' + checkSummoner.getName());
+
             checkFriend = (Friend) em.createQuery("SELECT f FROM Friend f WHERE f.user.id = :userId AND f.summoner.id = :summonerId").setParameter("userId", user.getId()).setParameter("summonerId", checkSummoner.getDbId()).getSingleResult();
-            System.out.println(user.getId() + ' ' + checkSummoner.getDbId());
+
         }catch(Exception e)
         {
-            System.out.println("Exception thrown in checking for users");
-            e.printStackTrace();
+            System.out.println("Friend not being followed");
         }
         
         // Now that we know the summoner name exists in our DB. see if it is an actual Summoner Name
@@ -68,7 +67,7 @@ public class addSummoner extends HttpServlet {
         String Error = null;
         Summoner newSummoner = null;
         
-        if(checkFriend == null)
+        if(checkFriend == null && checkSummoner == null)
         {
             try
             {
@@ -93,29 +92,44 @@ public class addSummoner extends HttpServlet {
         
         em.getTransaction().begin();
         
+        // Create a new friend
         Friend friend = new Friend();
-        friend.setSummoner(newSummoner);
+        
+        // if summoner doesnt exist in DB set summoner to it, else use checkSummoner we pulled from DB
+        if(checkSummoner == null)
+            friend.setSummoner(newSummoner);
+        else
+            friend.setSummoner(checkSummoner);
+        
+        // add user to friend
         friend.setUser(user);
              
         // 
-        if(checkFriend == null && newSummoner != null)
+        if(checkFriend == null)
         {
             System.out.println("Made it to Persist");
             
-           em.persist(newSummoner);
-           em.persist(friend);
-        // Start transction
+            // if summoner was not retreive from DB, persist the newly pulled one into Summoner DB
+            if(checkSummoner == null)
+                em.persist(newSummoner);
 
+            // add friend to DB
+            em.persist(friend);
+            
+            // commit changes to DB
+            em.flush();
            em.getTransaction().commit();
            request.getRequestDispatcher("PullFriends").forward(request, response);
+            em.close();
         }
         else
         {
+             em.close();
             Error = "Already Following Summoner " + summonerName;
             request.getSession().setAttribute("Error", Error);
             request.getRequestDispatcher("Welcome.jsp").forward(request, response);        
         }
-        em.close();
+       
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

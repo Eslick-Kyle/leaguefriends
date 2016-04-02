@@ -61,7 +61,8 @@ public class PullFriends extends HttpServlet {
                     // Add games to summoner class
                     friend.getSummoner().addGames(reply);
                 }
-//            sessionUser.getFriends().get(0).getSummoner().getGames().get(0).;
+                System.out.println("Should have pulled friends");
+
             // put user back on session
             request.setAttribute("user", sessionUser);
             // forward to Welcome

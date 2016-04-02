@@ -93,6 +93,7 @@ public class SignUpHandler extends HttpServlet {
         
         // Commit to DB
         em.persist(newUser);
+        em.flush();
         em.getTransaction().commit();
         
         // Close transaction
@@ -100,7 +101,7 @@ public class SignUpHandler extends HttpServlet {
         
         System.out.println("User Successfully Added");
         
-        request.setAttribute("Username", newUser.getUser_name());
+        request.getSession().setAttribute("user", newUser);
         request.getRequestDispatcher("Welcome.jsp").forward(request, response);
         
     }
