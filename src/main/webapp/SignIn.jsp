@@ -40,7 +40,8 @@
         <form action="SignInHandler" method="post">
             <input type="text" name="username" placeholder="Username"><br />
             <input type="password" name="password" placeholder="Password"><br />
-            <input type="submit">
+            <input type="submit"> <br />
+            <a href="SignUp.jsp" value="Sign up here!">Sign Up Here!</a>
         </form>
     </body>
 </html>
