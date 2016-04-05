@@ -9,18 +9,19 @@
 <!DOCTYPE html>
 <html>
     <style>
+        body
+        {
+            background-size: 100%;
+            background: url("welcome.png");
+            color: white;
+        }
         footer 
         {
             font-size: 10px;
             position:absolute;
             bottom:0;
             background:#ffffff;
-        }
-        body
-        {
-            background-size: 100%;
-            background: url("welcome.png");
-            color: white;
+            color: black;
         }
         #background
         {
@@ -61,7 +62,7 @@
         
         <!--  This series of loops will display user's friends and whatever game attributes you chose  -->
         <c:forEach items="${user.getFriends()}" var="friend" >
-            <a href="${friend.getSummoner().getName()}">${friend.getSummoner().getName()}</a>
+            <a href="SummonerHandler?name=${friend.getSummoner().getName()}">${friend.getSummoner().getName()}</a>
                 <br>
                 Past 10 Game Summary:
                 <!--  Choose what attributes you want to display per friend here-->

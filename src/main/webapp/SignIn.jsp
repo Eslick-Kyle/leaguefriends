@@ -27,6 +27,10 @@
             width: 100%;
             height: 100%;
         }
+        #title
+        {
+            text-align: center;
+        }
     </style>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -36,7 +40,10 @@
         <div id="background">
             <img src="signin.jpeg" alt="signin" class="stretch" />
         </div>
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br />
+        <br /><br /><br />
+        <h1 id="title">League of Friends</h1>
+        <br /><br />
         <form action="SignInHandler" method="post">
             <input type="text" name="username" placeholder="Username"><br />
             <input type="password" name="password" placeholder="Password"><br />
