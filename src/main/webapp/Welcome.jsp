@@ -61,7 +61,7 @@
         
         <!--  This series of loops will display user's friends and whatever game attributes you chose  -->
         <c:forEach items="${user.getFriends()}" var="friend" >
-            <a href="/${friend.getSummoner().getName()}" value="${friend.getSummoner().getName()}" />
+            <a href="${friend.getSummoner().getName()}">${friend.getSummoner().getName()}</a>
                 <br>
                 Past 10 Game Summary:
                 <!--  Choose what attributes you want to display per friend here-->
